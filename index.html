@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>To-Do List + Calculator (Tailwind)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-white text-slate-800 transition-colors" id="root">
+    <div class="max-w-4xl mx-auto p-6 space-y-6">
+        <header class="flex items-center justify-between">
+            <h1 class="text-2xl font-semibold">My To‑Do List</h1>
+            <div class="flex items-center gap-2">
+                <button id="settings-toggle" class="px-3 py-1 rounded bg-slate-100 hover:bg-slate-200">Settings</button>
+            </div>
+        </header>
+
+        <aside id="settings" class="hidden p-4 bg-slate-50 rounded shadow-sm space-y-3">
+            <div class="flex items-center gap-2">
+            <label class="text-sm">Background:</label>
+            <select id="bg-color-select" class="px-2 py-1 border rounded">
+                <option value="">Default</option>
+                <option value="white">White</option>
+                <option value="#FFD6E0">Light Pink</option>
+                <option value="#FFE5B4">Peach</option>
+                <option value="#6EC5E9">Ocean Blue</option>
+                <option value="gray">Grey</option>
+            </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+            <button id="font-size-decrease" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200">A−</button>
+            <button id="font-size-increase" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200">A+</button>
+            <button id="dark-mode-toggle" class="px-3 py-1 rounded bg-slate-100 hover:bg-slate-200">Toggle Dark</button>
+            <button id="clear-tasks" class="ml-auto px-3 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200">Clear All</button>
+            </div>
+        </aside>
+        </aside>
+
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section class="space-y-4">
+                <div class="flex gap-2">
+                    <input id="newTask" type="text" placeholder="Add a new task..." class="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring" />
+                    <button id="addBtn" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Add</button>
+                </div>
+
+                <ul id="taskList" class="space-y-2"></ul>
+            </section>
+
+            <section>
+                <div class="p-4 border rounded shadow-sm bg-white dark:bg-slate-800">
+                    <h2 class="text-lg font-medium mb-3">Calculator</h2>
+                    <input id="calc-display" readonly class="w-full mb-3 px-3 py-2 text-right border rounded bg-slate-50" aria-label="Calculator display" />
+                    <div class="grid grid-cols-4 gap-2">
+                        <button class="calc-btn px-3 py-2 rounded bg-slate-100">7</button>
+                        <button class="calc-btn px-3 py-2 rounded bg-slate-100">8</button>
+                        <button class="calc-btn px-3 py-2 rounded bg-slate-100">9</button>
+                        <button class="calc-op px-3 py-2 rounded bg-indigo-100">÷</button>
+
+                        <button class="calc-btn px-3 py-2 rounded bg-slate-100">4</button>
+                        <button class="calc-btn px-3 py-2 rounded bg-slate-100">5</button>
+                        <button class="calc-btn px-3 py-2 rounded bg-slate-100">6</button>
+                        <button class="calc-op px-3 py-2 rounded bg-indigo-100">×</button>
+
+                        <button class="calc-btn px-3 py-2 rounded bg-slate-100">1</button>
+                        <button class="calc-btn px-3 py-2 rounded bg-slate-100">2</button>
+                        <button class="calc-btn px-3 py-2 rounded bg-slate-100">3</button>
+                        <button class="calc-op px-3 py-2 rounded bg-indigo-100">−</button>
+
+                        <button class="calc-btn px-3 py-2 rounded bg-slate-100">0</button>
+                        <button class="calc-btn px-3 py-2 rounded bg-slate-100">.</button>
+                        <button id="calc-clear" class="px-3 py-2 rounded bg-red-100 text-red-700">C</button>
+                        <button class="calc-op px-3 py-2 rounded bg-indigo-100">+</button>
+
+                        <button id="calc-equals" class="col-span-2 px-3 py-2 rounded bg-indigo-600 text-white">=</button>
+                        <button id="calc-back" class="col-span-2 px-3 py-2 rounded bg-slate-200">⌫</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const settingsToggle = document.getElementById('settings-toggle');
+        const settingsEl = document.getElementById('settings');
+        const bgSelect = document.getElementById('bg-color-select');
+        const darkToggle = document.getElementById('dark-mode-toggle');
+        const fontInc = document.getElementById('font-size-increase');
+        const fontDec = document.getElementById('font-size-decrease');
+        const clearTasksBtn = document.getElementById('clear-tasks');
+
+        settingsToggle.addEventListener('click', () => {
+            settingsEl.classList.toggle('hidden');
+        });
+
+        bgSelect.addEventListener('change', (e) => {
+            const v = e.target.value;
+            document.body.style.background = v || '';
+        });
+
+        let rootFont = 16;
+        fontInc.addEventListener('click', () => {
+            rootFont = Math.min(24, rootFont + 1);
+            document.documentElement.style.fontSize = rootFont + 'px';
+        });
+        fontDec.addEventListener('click', () => {
+            rootFont = Math.max(12, rootFont - 1);
+            document.documentElement.style.fontSize = rootFont + 'px';
+        });
+
+        darkToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                document.body.classList.add('bg-slate-900', 'text-slate-100');
+                document.body.classList.remove('bg-white', 'text-slate-800');
+            } else {
+                document.body.classList.remove('bg-slate-900', 'text-slate-100');
+                document.body.classList.add('bg-white', 'text-slate-800');
+            }
+        });
+
+        const newTaskEl = document.getElementById('newTask');
+        const addBtn = document.getElementById('addBtn');
+        const taskList = document.getElementById('taskList');
+        const STORAGE_KEY = 'tds_tasks_v1';
+
+        function loadTasks() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch { return []; }
+        }
+        function saveTasks(tasks) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        }
+
+        function renderTasks() {
+            const tasks = loadTasks();
+            taskList.innerHTML = '';
+            tasks.forEach((t, i) => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center justify-between gap-3 p-2 border rounded bg-slate-50';
+                const left = document.createElement('div');
+                left.className = 'flex items-center gap-3';
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.checked = t.done;
+                const txt = document.createElement('span');
+                txt.textContent = t.text;
+                txt.className = t.done ? 'line-through text-slate-400' : '';
+                chk.addEventListener('change', () => {
+                    const tasks = loadTasks();
+                    tasks[i].done = chk.checked;
+                    saveTasks(tasks);
+                    renderTasks();
+                });
+                left.appendChild(chk);
+                left.appendChild(txt);
+
+                const actions = document.createElement('div');
+                actions.className = 'flex items-center gap-2';
+                const editBtn = document.createElement('button');
+                editBtn.className = 'px-2 py-1 text-sm bg-yellow-100 rounded';
+                editBtn.textContent = 'Edit';
+                editBtn.addEventListener('click', () => {
+                    const newText = prompt('Edit task', t.text);
+                    if (newText != null) {
+                        const tasks = loadTasks();
+                        tasks[i].text = newText.trim();
+                        saveTasks(tasks);
+                        renderTasks();
+                    }
+                });
+                const delBtn = document.createElement('button');
+                delBtn.className = 'px-2 py-1 text-sm bg-red-100 text-red-700 rounded';
+                delBtn.textContent = 'Delete';
+                delBtn.addEventListener('click', () => {
+                    const tasks = loadTasks();
+                    tasks.splice(i, 1);
+                    saveTasks(tasks);
+                    renderTasks();
+                });
+                actions.appendChild(editBtn);
+                actions.appendChild(delBtn);
+
+                li.appendChild(left);
+                li.appendChild(actions);
+                taskList.appendChild(li);
+            });
+        }
+
+        addBtn.addEventListener('click', addTask);
+        newTaskEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+
+        function addTask() {
+            const text = newTaskEl.value.trim();
+            if (!text) return;
+            const tasks = loadTasks();
+            tasks.unshift({ text, done: false });
+            saveTasks(tasks);
+            newTaskEl.value = '';
+            renderTasks();
+        }
+
+        clearTasksBtn.addEventListener('click', () => {
+            if (confirm('Clear all tasks?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                renderTasks();
+            }
+        });
+
+        renderTasks();
+
+        const display = document.getElementById('calc-display');
+        const calcBtns = Array.from(document.querySelectorAll('.calc-btn'));
+        const calcOps = Array.from(document.querySelectorAll('.calc-op'));
+        const btnClear = document.getElementById('calc-clear');
+        const btnEquals = document.getElementById('calc-equals');
+        const btnBack = document.getElementById('calc-back');
+
+        let expr = '';
+
+        function pushVal(v) {
+            expr += v;
+            display.value = expr;
+        }
+
+        calcBtns.forEach(b => b.addEventListener('click', () => pushVal(b.textContent.trim())));
+        calcOps.forEach(b => b.addEventListener('click', () => {
+            const map = { '×': '*', '÷': '/', '−': '-' };
+            const sym = b.textContent.trim();
+            expr += map[sym] || sym;
+            display.value = expr;
+        }));
+
+        btnClear.addEventListener('click', () => { expr = ''; display.value = ''; });
+        btnBack.addEventListener('click', () => { expr = expr.slice(0, -1); display.value = expr; });
+
+        btnEquals.addEventListener('click', () => {
+            if (!expr) return;
+            try {
+                if (!/^[0-9+\-*/().\s]+$/.test(expr)) {
+                    display.value = 'Error';
+                    expr = '';
+                    return;
+                }
+                const result = Function('"use strict"; return (' + expr + ')')();
+                display.value = String(result);
+                expr = String(result);
+            } catch {
+                display.value = 'Error';
+                expr = '';
+            }
+        });
+
+        display.addEventListener('keydown', (e) => {
+            const allowed = '0123456789+-*/().';
+            if (e.key === 'Enter') { btnEquals.click(); e.preventDefault(); return; }
+            if (e.key === 'Backspace') return;
+            if (!allowed.includes(e.key)) e.preventDefault();
+        });
+    </script>
+</body>
+</html>
